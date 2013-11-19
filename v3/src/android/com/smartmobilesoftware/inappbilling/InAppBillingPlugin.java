@@ -88,12 +88,14 @@ public class InAppBillingPlugin extends CordovaPlugin {
 				// Buy an item
 				// Get Product Id 
 				final String sku = data.getString(0);
-				buy(sku);
+                final String payload = data.getString(1);
+				buy(sku, payload);
 			} else if ("subscribe".equals(action)) {
 				// Subscribe to an item
 				// Get Product Id 
 				final String sku = data.getString(0);
-				subscribe(sku);
+                final String payload = data.getString(1);
+				subscribe(sku, payload);
 			} else if ("consumePurchase".equals(action)) {
 				consumePurchase(data);
 			} else if ("getAvailableProducts".equals(action)) {
@@ -173,11 +175,11 @@ public class InAppBillingPlugin extends CordovaPlugin {
     }
 	
 	// Buy an item
-	private void buy(final String sku){
+	private void buy(final String sku, final String payload){
 		/* TODO: for security, generate your payload here for verification. See the comments on 
          *        verifyDeveloperPayload() for more info. Since this is a sample, we just use 
          *        an empty string, but on a production app you should generate this. */
-		final String payload = "";
+		//final String payload = "";
 		
 		if (mHelper == null){
 			callbackContext.error("Billing plugin was not initialized");
@@ -192,7 +194,7 @@ public class InAppBillingPlugin extends CordovaPlugin {
 	}
 	
 	// Buy an item
-	private void subscribe(final String sku){
+	private void subscribe(final String sku, final String payload){
 		if (mHelper == null){
 			callbackContext.error("Billing plugin was not initialized");
 			return;
@@ -205,7 +207,7 @@ public class InAppBillingPlugin extends CordovaPlugin {
 		/* TODO: for security, generate your payload here for verification. See the comments on 
          *        verifyDeveloperPayload() for more info. Since this is a sample, we just use 
          *        an empty string, but on a production app you should generate this. */
-		final String payload = "";
+		//final String payload = "";
 		
 		
 		
@@ -217,7 +219,7 @@ public class InAppBillingPlugin extends CordovaPlugin {
 	
 
 	// Get the list of purchases
-	private JSONArray getPurchases() throws JSONException {
+	private JSONArray getPurchases() throws JSONException {    
 		// Get the list of owned items
 		if(myInventory == null){
 			callbackContext.error("Billing plugin was not initialized");
@@ -228,12 +230,21 @@ public class InAppBillingPlugin extends CordovaPlugin {
         // Convert the java list to json
         JSONArray jsonPurchaseList = new JSONArray();
         for (Purchase p : purchaseList) {
-	        jsonPurchaseList.put(new JSONObject(p.getOriginalJson()));
+	        jsonPurchaseList.put( purchaseToJSON(p) );
         }
 
         return jsonPurchaseList;
 
 	}
+    
+    private JSONObject purchaseToJSON( Purchase p ) throws JSONException
+    {
+        JSONObject obj = new JSONObject( );
+        obj.put( "signature", p.getSignature() );
+        obj.put( "productId", p.getSku() );
+        obj.put( "purchase_info", p.getOriginalJson() );
+        return obj;
+    }
 
 	// Get the list of available products
 	private JSONArray getAvailableProducts(){
@@ -369,7 +380,15 @@ public class InAppBillingPlugin extends CordovaPlugin {
             
             // add the purchase to the inventory
             myInventory.addPurchase(purchase);
-            callbackContext.success(purchase.getSku());
+            
+            try
+            {
+                callbackContext.success( purchaseToJSON(purchase) );
+            }
+            catch ( JSONException e )
+            {
+                callbackContext.error( e.getMessage() );
+            }
 
         }
     };
@@ -390,8 +409,15 @@ public class InAppBillingPlugin extends CordovaPlugin {
             	myInventory.erasePurchase(purchase.getSku());
                 Log.d(TAG, "Consumption successful. .");
                 
-                callbackContext.success(purchase.getOriginalJson());
                 
+                try
+                {
+                    callbackContext.success( purchaseToJSON(purchase) );
+                }
+                catch ( JSONException e )
+                {
+                    callbackContext.error( e.getMessage() );
+                }
             }
             else {
                 callbackContext.error("Error while consuming: " + result);

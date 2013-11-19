@@ -52,17 +52,17 @@ InAppBilling.prototype.getPurchases = function (success, fail) {
 	}
 	return cordova.exec(success, fail, "InAppBillingPlugin", "getPurchases", ["null"]);
 };
-InAppBilling.prototype.buy = function (success, fail, productId) {
+InAppBilling.prototype.buy = function (success, fail, productId, payload) {
 	if (this.options.showLog) {
 		log('buy called!');
 	}
-	return cordova.exec(success, fail, "InAppBillingPlugin", "buy", [productId]);
+	return cordova.exec(success, fail, "InAppBillingPlugin", "buy", [productId, payload]);
 };
-InAppBilling.prototype.subscribe = function (success, fail, productId) {
+InAppBilling.prototype.subscribe = function (success, fail, productId, payload) {
 	if (this.options.showLog) {
 		log('subscribe called!');
 	}
-	return cordova.exec(success, fail, "InAppBillingPlugin", "subscribe", [productId]);
+	return cordova.exec(success, fail, "InAppBillingPlugin", "subscribe", [productId, payload]);
 };
 InAppBilling.prototype.consumePurchase = function (success, fail, productId) {
 	if (this.options.showLog) {
