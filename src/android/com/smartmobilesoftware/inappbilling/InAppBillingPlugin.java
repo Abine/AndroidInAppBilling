@@ -243,6 +243,8 @@ public class InAppBillingPlugin extends CordovaPlugin {
         obj.put( "signature", p.getSignature() );
         obj.put( "productId", p.getSku() );
         obj.put( "purchase_info", p.getOriginalJson() );
+        obj.put( "token", p.getToken());
+        obj.put( "orderId", p.getOrderId());
         return obj;
     }
 
