@@ -11,6 +11,7 @@ var InAppBilling = function () {
 };
 
 InAppBilling.prototype.init = function (success, fail, options, skus) {
+	log('start init');
 	options || (options = {});
 
 	this.options = {
